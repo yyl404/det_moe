@@ -1,10 +1,11 @@
 _base_ = ['../_base_/default_runtime.py', '../_base_/det_p5_tta.py']
 
 # data settings
-dataset_type = 'YOLOv5CocoDataset'
+dataset_type = 'det_moe.CustomCocoYoloDataset'
 data_root = 'data/voc_as_coco/'
 train_ann_file = 'annotations/instances_train.json'
 val_ann_file = 'annotations/instances_val.json'
+test_ann_file = 'annotations/instances_test.json'
 img_scale = (640, 640)
 num_classes = 20
 train_batch_size_per_gpu = 16
@@ -121,13 +122,26 @@ val_dataloader = dict(
         type=dataset_type,
         data_root=data_root,
         ann_file=val_ann_file,
+        test_mode=True,
         data_prefix=dict(img='images/val'),
         pipeline=test_pipeline,
         batch_shapes_cfg=None))
-test_dataloader = val_dataloader
 
-val_evaluator = dict(type='VOCMetric', metric='mAP', eval_mode='11points')
-test_evaluator = val_evaluator
+test_dataloader = dict(
+    batch_size=val_batch_size_per_gpu,
+    num_workers=val_num_workers,
+    persistent_workers=True,
+    pin_memory=True,
+    drop_last=False,
+    sampler=dict(type='DefaultSampler', shuffle=False),
+    dataset=dict(
+        type=dataset_type,
+        data_root=data_root,
+        ann_file=test_ann_file,
+        test_mode=True,
+        data_prefix=dict(img='images/test'),
+        pipeline=test_pipeline,
+        batch_shapes_cfg=None))
 
 # model settings
 model_test_cfg = dict(
@@ -221,7 +235,7 @@ grus = (
     dict(
         type='det_moe.GRUMultiLevel',
         in_channels=(256, 512, 1024),
-        out_channels=(64, 128, 256),
+        out_channels=(32, 64, 128),
         kernel_sizes=(3,3,3,1,1,1),
         paddings=(1,1,1,0,0,0)
     ),
@@ -256,7 +270,7 @@ model = dict(
         head_module=dict(
             type='YOLOv8HeadModule',
             num_classes=num_classes,
-            in_channels=[256, 512, 1024],
+            in_channels=[128, 256, 512],
             reg_max=16,
             norm_cfg=dict(type='BN', momentum=0.03, eps=0.001),
             act_cfg=dict(type='SiLU', inplace=True),
@@ -336,8 +350,16 @@ custom_hooks = [
         priority=49)
 ]
 
-val_evaluator = dict(type='mmdet.VOCMetric', metric='mAP', eval_mode='11points')
-test_evaluator = val_evaluator
+val_evaluator = dict(
+    type='mmdet.CocoMetric',
+    proposal_nums=(100, 1, 10),
+    ann_file=data_root + val_ann_file,
+    metric='bbox')
+test_evaluator = dict(
+    type='mmdet.CocoMetric',
+    proposal_nums=(100, 1, 10),
+    ann_file=data_root + test_ann_file,
+    metric='bbox')
 
 train_cfg = dict(
     type='EpochBasedTrainLoop',
