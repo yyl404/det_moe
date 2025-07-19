@@ -1,6 +1,6 @@
-# Detectors' Mixture-of-Experts
+# 基于多Head预测器的置信度排序融合方法
 
-这是一个基于MMYOLO, MMDetection框架所构建的，目标检测模型的混合专家实验。
+这是一个基于MMYOLO, MMDetection框架所构建的，用于演示基于多Head预测器的置信度排序融合方法的项目。
 
 ## 安装
 
@@ -38,10 +38,15 @@ python tools/inference.py configs/gru/yolo_gru_s_syncbn_fast_8xb16-500e_voc.py w
 
 ## 实验结果
 
-|Models|mAP[50]|mAP[50,95]|
+|Models|val mAP[50]|val mAP[50,95]|test mAP[50]|test mAP[50,95]|
 |---|---|---|
 |yolov8s|||
 |yolov7s|||
 |yolov6s|||
 |yolov5s|||
-|yolo-gru|||
+|yolo-gru|71.0|52.9|72.0|51.9|
+
+
+# 部署至晟腾NPU
+
+目前在晟腾NPU上支持对模型的测试和推理，部署方法如下
