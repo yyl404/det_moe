@@ -228,28 +228,28 @@ grus = (
     dict(
         type='det_moe.GRUMultiLevel',
         in_channels=(128, 256, 512),
-        out_channels=(32, 64, 128),
+        out_channels=(128, 256, 512),
         kernel_sizes=(3,3,3,1,1,1),
         paddings=(1,1,1,0,0,0)
     ),
     dict(
         type='det_moe.GRUMultiLevel',
         in_channels=(256, 512, 1024),
-        out_channels=(32, 64, 128),
+        out_channels=(128, 256, 512),
         kernel_sizes=(3,3,3,1,1,1),
         paddings=(1,1,1,0,0,0)
     ),
     dict(
         type='det_moe.GRUMultiLevel',
         in_channels=(64, 128, 256),
-        out_channels=(32, 64, 128),
+        out_channels=(128, 256, 512),
         kernel_sizes=(3,3,3,1,1,1),
         paddings=(1,1,1,0,0,0)
     ),
     dict(
         type='det_moe.GRUMultiLevel',
         in_channels=(128, 256, 512),
-        out_channels=(32, 64, 128),
+        out_channels=(128, 256, 512),
         kernel_sizes=(3,3,3,1,1,1),
         paddings=(1,1,1,0,0,0)
     ),
@@ -270,7 +270,7 @@ model = dict(
         head_module=dict(
             type='YOLOv8HeadModule',
             num_classes=num_classes,
-            in_channels=[128, 256, 512],
+            in_channels=[512, 1024, 2048],
             reg_max=16,
             norm_cfg=dict(type='BN', momentum=0.03, eps=0.001),
             act_cfg=dict(type='SiLU', inplace=True),
